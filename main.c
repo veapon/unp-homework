@@ -2,6 +2,7 @@
 
 #define FALSE 0
 #define TRUE 1
+#define BUFSIZE 4096
 
 int main(int argc, char **argv)
 {
@@ -27,6 +28,9 @@ int main(int argc, char **argv)
 		return FALSE;
 	}
 
-
+	char buf[BUFSIZE];
+	while (read(fd, buf, BUFSIZE) > 0) {
+		printf("%s", buf);
+	}
 	return TRUE;
 }
