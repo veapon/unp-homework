@@ -1,4 +1,4 @@
-#include "main.h"
+#include "client.h"
 
 #define FALSE 0
 #define TRUE 1
@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_port = htons(80);
+	serv.sin_port = htons(13);
 	if (1 != inet_pton(AF_INET, serv_ip, &serv.sin_addr)) {
 		printf("Unable to initialize socket\n");
 		return FALSE;
@@ -24,13 +24,19 @@ int main(int argc, char **argv)
 	} 
 
 	if (connect(fd, (struct sockaddr *) &serv, sizeof(serv)) < 0) {
-		printf("Unable to connect server: %s", serv_ip);
+		printf("Unable to connect server: %s\n", serv_ip);
 		return FALSE;
 	}
 
-	char buf[BUFSIZE];
-	while (read(fd, buf, BUFSIZE) > 0) {
-		printf("%s", buf);
+	int n;
+	char buf[BUFSIZE + 1];
+	while ((n = read(fd, buf, BUFSIZE)) > 0) {
+		buf[n] = 0;	
+		printf("%s\n", buf);
 	}
+	if (n < 0) {
+		printf("Read error\n");
+	}
+	close(fd);
 	return TRUE;
 }
