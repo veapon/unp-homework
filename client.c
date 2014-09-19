@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_port = htons(13);
+	serv.sin_port = htons(45000);
 	if (1 != inet_pton(AF_INET, serv_ip, &serv.sin_addr)) {
 		printf("Unable to initialize socket\n");
 		return FALSE;
