@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <stdio.h>
+
 #include "client.h"
 
 #define FALSE 0
@@ -6,6 +9,15 @@
 
 int main(int argc, char **argv)
 {
+	char server[15];
+	printf("Please input server address: ");
+	if (fgets(server, BUFSIZE, stdin) == NULL) {
+		printf("\nUnable to read from stdin.");
+		return TRUE;
+	}
+	printf("%s", server);
+	return TRUE;
+	/*
 	int fd;
 	char *serv_ip = "127.0.0.1";
 	struct sockaddr_in serv;
@@ -39,4 +51,5 @@ int main(int argc, char **argv)
 	}
 	close(fd);
 	return TRUE;
+	*/
 }
