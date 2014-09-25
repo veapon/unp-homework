@@ -23,7 +23,7 @@ int main(int argc, char **argv)
 	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
-	serv.sin_port = htons(13);
+	serv.sin_port = htons(45000);
 	if (1 != inet_pton(AF_INET, serv_ip, &serv.sin_addr)) {
 		printf("Unable to initialize socket\n");
 		return FALSE;
@@ -40,15 +40,12 @@ int main(int argc, char **argv)
 		return FALSE;
 	}
 
-	int n;
-	char buf[BUFSIZE + 1];
-	while ((n = read(fd, buf, BUFSIZE)) > 0) {
-		buf[n] = 0;	
-		printf("%s\n", buf);
-	}
-	if (n < 0) {
-		printf("Read error\n");
-	}
+	char *str, buf[BUFSIZE];
+	str = argv[1];
+	write(fd, str, strlen(str));
+	
+	read(fd, buf, BUFSIZE);
+	printf("Message received: %s\n", buf);
 	close(fd);
 	return TRUE;
 	*/

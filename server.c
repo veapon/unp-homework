@@ -2,38 +2,53 @@
 
 #define TRUE 1
 #define FALSE 0
+#define MAXLINE 4096
+
+void request_handler(int);
 
 int main(int argc, char **argv)
 {
-	int fd, client_fd;
+	int listenfd, connectfd, port, bytes_read;
+	socklen_t client_len;
+	struct sockaddr_in serv, cli;
+	char buf[MAXLINE];
 
-	fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (fd == -1) {
+	port = 45000;
+
+	listenfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (listenfd == -1) {
 		printf("Failed to init socket\n");
 		return FALSE;
 	}
 
-	struct sockaddr_in serv;
 	memset(&serv, 0, sizeof(serv));
 	serv.sin_family = AF_INET;
 	serv.sin_addr.s_addr = htonl(INADDR_ANY);
-	serv.sin_port = htons(56789);
-	if (bind(fd, (struct sockaddr *) &serv, sizeof(serv)) == -1) {
-		printf("Unable to bind *:56789\n");
+	serv.sin_port = htons(port);
+	if (bind(listenfd, (struct sockaddr *) &serv, sizeof(serv)) == -1) {
+		printf("Unable to bind *:%d\n", port);
 		return FALSE;
 	}
 
-	if (listen(fd, SOMAXCONN) == -1) {
+	if (listen(listenfd, SOMAXCONN) == -1) {
 		printf("Socket execute error\n");
 		return FALSE;
 	}
 
-	printf("Server is listening on *:56789\n");
+	printf("Server is listening on *:%d\n", port);
 	while(TRUE) {
-		client_fd = accept(fd, (struct sockaddr *) NULL, NULL);
-		if (client_fd == -1) {
-			break;
+		client_len = sizeof(cli);
+		connectfd = accept(listenfd, (struct sockaddr *) &cli, &client_len);
+
+		while ((bytes_read = read(connectfd, buf, MAXLINE)) > 0) {
+			printf("Message recieved: %s\n", buf);
+			write(connectfd, buf, bytes_read);	
 		}
+
+		close(connectfd);
 	}
+
+	close(listenfd);
 	return TRUE;
 }
+
