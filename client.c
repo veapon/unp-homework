@@ -28,15 +28,12 @@ int main(int argc, char **argv)
 		return FALSE;
 	}
 
-	int n;
-	char buf[BUFSIZE + 1];
-	while ((n = read(fd, buf, BUFSIZE)) > 0) {
-		buf[n] = 0;	
-		printf("%s\n", buf);
-	}
-	if (n < 0) {
-		printf("Read error\n");
-	}
+	char *str, buf[BUFSIZE];
+	str = argv[1];
+	write(fd, str, strlen(str));
+	
+	read(fd, buf, BUFSIZE);
+	printf("Message received: %s\n", buf);
 	close(fd);
 	return TRUE;
 }
