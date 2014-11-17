@@ -8,10 +8,10 @@ void request_handler(int);
 
 int main(int argc, char **argv)
 {
-	int listenfd, connectfd, port, bytes_read;
+	int listenfd, connectfd, port;
 	socklen_t client_len;
 	struct sockaddr_in serv, cli;
-	char buf[MAXLINE];
+	pid_t pid;
 
 	port = 45000;
 
@@ -40,9 +40,17 @@ int main(int argc, char **argv)
 		client_len = sizeof(cli);
 		connectfd = accept(listenfd, (struct sockaddr *) &cli, &client_len);
 
+		/*
 		while ((bytes_read = read(connectfd, buf, MAXLINE)) > 0) {
 			printf("Message recieved: %s\n", buf);
 			write(connectfd, buf, bytes_read);	
+		}
+		*/
+		if ((pid = fork()) == 0) {
+			close(listenfd);
+			request_handler(connectfd);
+			close(connectfd);
+			exit(0);
 		}
 
 		close(connectfd);
@@ -52,3 +60,15 @@ int main(int argc, char **argv)
 	return TRUE;
 }
 
+void request_handler(int fd)
+{
+	int bytes_read;
+	char buf[MAXLINE];
+
+	while ((bytes_read = read(fd, buf, MAXLINE)) > 0) {
+		printf("Client Message: %s, pid: %d, ppid: %d\n", buf, getpid(), getppid());
+		write(fd, buf, bytes_read);	
+	}
+
+	close(fd);
+}
