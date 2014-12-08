@@ -41,7 +41,13 @@ int main(int argc, char **argv)
 	}
 
 	char *str, buf[BUFSIZE];
-	str = argv[1];
+	str = (char *)calloc(BUFSIZE, sizeof(char));
+	/*printf("argc: %d\n", argc);*/
+	if (argc > 1) {
+		str = argv[1];
+	} else {
+		strcpy(str, "client msg");
+	}
 	write(fd, str, strlen(str));
 	
 	read(fd, buf, BUFSIZE);
