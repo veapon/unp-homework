@@ -4,7 +4,16 @@
 #define FALSE 0
 #define MAXLINE 4096
 
-void request_handler(int);
+/**
+ * I/O blocking version
+ */
+int main(int argc, char **argv)
+{
+	int listenfd, connfd, port;
+	struct sockaddr_in serv, cli;
+
+	listenfd = socket(AF_INET, SOCK_STREAM, 0);
+}
 
 int main(int argc, char **argv)
 {
@@ -48,7 +57,6 @@ int main(int argc, char **argv)
 	}
 	FD_ZERO(&allset);
 	FD_SET(listenfd, &allset);
-
 	printf("Server is listening on *:%d\n", port);
 	while(TRUE) {
 		// select version
@@ -78,7 +86,6 @@ int main(int argc, char **argv)
 			if (i > maxi) {
 				maxi = i;
 			}
-			printf("i: %d, maxi: %d\n", i, maxi);
 
 		}
 
@@ -87,11 +94,15 @@ int main(int argc, char **argv)
 				continue;
 			}
 			
-			if (FD_ISSET(sockfd, &rset)) {
-				request_handler(sockfd);
-				FD_CLR(sockfd, &allset);
-				client[i] = -1;
+			int bytes_read;
+			char buf[MAXLINE];
+			while ((bytes_read = read(sockfd, buf, MAXLINE)) > 0) {
+				write(sockfd, buf, bytes_read);	
 			}
+			printf("Client Message: %s", buf);
+			close(sockfd);
+			FD_CLR(sockfd, &allset);
+			client[i] = -1;
 		}
 
 		/*
@@ -116,8 +127,6 @@ int main(int argc, char **argv)
 			exit(0);
 		}
 		*/
-
-
 
 		close(connectfd);
 	}

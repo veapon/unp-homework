@@ -48,6 +48,8 @@ int main(int argc, char **argv)
 	} else {
 		strcpy(str, "client msg");
 	}
+
+	printf("Sending message: %s\n", str);
 	write(fd, str, strlen(str));
 	
 	read(fd, buf, BUFSIZE);
