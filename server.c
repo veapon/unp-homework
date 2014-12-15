@@ -4,6 +4,8 @@
 #define FALSE 0
 #define BUFSIZE 4096
 
+void request_handler(int);
+
 /**
  * I/O blocking version
  */
@@ -50,7 +52,6 @@ int main(int argc, char **argv)
 /**
  * fork version
  */
-/*
 int main(int argc, char **argv)
 {
 	int listenfd, connfd, port, bytes_read;
@@ -93,16 +94,14 @@ int main(int argc, char **argv)
 	close(listenfd);
 	return TRUE;	
 }
-*/
-
-
 
 /*
  * select version
  */
+/*
 int main(int argc, char **argv)
 {
-	int listenfd, connectfd, port, i, maxi, maxfd, sockfd;
+	int listenfd, connfd, port, i, maxi, maxfd, sockfd;
 	socklen_t client_len;
 	struct sockaddr_in serv, cli;
 
@@ -141,28 +140,26 @@ int main(int argc, char **argv)
 		if (FD_ISSET(listenfd, &rset)) {
 
 			client_len = sizeof(cli);
-			connectfd = accept(listenfd, (struct sockaddr *) &cli, &client_len);
+			connfd = accept(listenfd, (struct sockaddr *) &cli, &client_len);
 
 			for (i = 0; i < FD_SETSIZE; i++) {
 				if (client[i] < 0) {
-					client[i] = connectfd;
+					client[i] = connfd;
 					break;
 				}
 			}
 			
 			if (i == FD_SETSIZE) {
-				printf("too many clients\n");
-				exit(0);
+				msg_error("Too many clients\n");
 			}
 
-			if (connectfd > maxfd) {
-				maxfd = connectfd;
+			if (connfd > maxfd) {
+				maxfd = connfd;
 			}
 
 			if (i > maxi) {
 				maxi = i;
 			}
-
 		}
 
 		for(i = 0; i <= maxi; i++) {
@@ -171,36 +168,20 @@ int main(int argc, char **argv)
 			}
 			
 			int bytes_read;
-			char buf[MAXLINE];
-			while ((bytes_read = read(sockfd, buf, MAXLINE)) > 0) {
+			char buf[BUFSIZE];
+			while ((bytes_read = read(sockfd, buf, BUFSIZE)) > 0) {
 				write(sockfd, buf, bytes_read);	
 			}
-			printf("Client Message: %s", buf);
 			close(sockfd);
 			FD_CLR(sockfd, &allset);
 			client[i] = -1;
 		}
-
-		while ((bytes_read = read(connectfd, buf, MAXLINE)) > 0) {
-			printf("Message recieved: %s\n", buf);
-			write(connectfd, buf, bytes_read);	
-		}
-
-
-		if ((pid = fork()) == 0) {
-			close(listenfd);
-			request_handler(connectfd);
-			close(connectfd);
-			exit(0);
-		}
-
-		close(connectfd);
 	}
 
 	close(listenfd);
 	return TRUE;
 }
-
+*/
 void request_handler(int fd)
 {
 	int bytes_read;

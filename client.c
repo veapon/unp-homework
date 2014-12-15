@@ -36,17 +36,17 @@ int main(int argc, char **argv)
 	} 
 
 	if (connect(fd, (struct sockaddr *) &serv, sizeof(serv)) < 0) {
+		printf("argc: %d, fd: %d\n", argc, fd);
 		printf("Unable to connect server: %s\n", serv_ip);
 		return FALSE;
 	}
 
 	char *str, buf[BUFSIZE];
 	str = (char *)calloc(BUFSIZE, sizeof(char));
-	/*printf("argc: %d\n", argc);*/
 	if (argc > 1) {
 		str = argv[1];
 	} else {
-		strcpy(str, "client msg");
+		strcpy(str, "client msg\n");
 	}
 
 	printf("Sending message: %s\n", str);
