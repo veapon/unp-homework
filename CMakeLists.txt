@@ -1,0 +1,12 @@
+PROJECT(UNPWORK)
+
+SET(SERVER_SRC server.c)
+ADD_EXECUTABLE(server 
+	${SERVER_SRC}
+)
+
+SET(CLIENT_SRC client.c)
+ADD_EXECUTABLE(client 
+	${CLIENT_SRC}
+)
+

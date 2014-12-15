@@ -2,26 +2,109 @@
 
 #define TRUE 1
 #define FALSE 0
-#define MAXLINE 4096
+#define BUFSIZE 4096
 
 /**
  * I/O blocking version
  */
+/*
 int main(int argc, char **argv)
 {
-	int listenfd, connfd, port;
-	struct sockaddr_in serv, cli;
+	int listenfd, connfd, port, bytes_read;
+	char buf[BUFSIZE];
+	struct sockaddr_in serv;
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
-}
+	if (listenfd == -1) {
+		msg_error("Failed to init socket\n");
+	}
+	
+	memset(&serv, 0, sizeof(serv));
+	port = 45000;
+	serv.sin_family = AF_INET;
+	serv.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv.sin_port = htons(port);
+	if (bind(listenfd, (struct sockaddr *) &serv, sizeof(serv)) == -1) {
+		msg_error("Bind error\n");
+	}
 
+	if (listen(listenfd, SOMAXCONN) == -1) {
+		msg_error("Socket execute error\n");
+	}
+	
+	printf("Server is listening on: %d\n", port);
+	while(TRUE) {
+		connfd = accept(listenfd, NULL, NULL);
+		request_handler(connfd);
+
+		close(connfd);
+	}
+
+	close(listenfd);
+	return TRUE;
+	
+}
+*/
+
+
+/**
+ * fork version
+ */
+/*
+int main(int argc, char **argv)
+{
+	int listenfd, connfd, port, bytes_read;
+	char buf[BUFSIZE];
+	pid_t pid;
+	struct sockaddr_in serv;
+
+	listenfd = socket(AF_INET, SOCK_STREAM, 0);
+	if (listenfd == -1) {
+		msg_error("Failed to init socket\n");
+	}
+	
+	memset(&serv, 0, sizeof(serv));
+	port = 45000;
+	serv.sin_family = AF_INET;
+	serv.sin_addr.s_addr = htonl(INADDR_ANY);
+	serv.sin_port = htons(port);
+	if (bind(listenfd, (struct sockaddr *) &serv, sizeof(serv)) == -1) {
+		msg_error("Bind error\n");
+	}
+
+	if (listen(listenfd, SOMAXCONN) == -1) {
+		msg_error("Socket execute error\n");
+	}
+	
+	printf("Server is listening on: %d\n", port);
+	while(TRUE) {
+		connfd = accept(listenfd, NULL, NULL);
+
+		if ((pid = fork()) == 0) {
+			request_handler(connfd);
+			close(listenfd);
+			close(connfd);
+			exit(TRUE);
+		}
+
+		close(connfd);
+	}
+
+	close(listenfd);
+	return TRUE;	
+}
+*/
+
+
+
+/*
+ * select version
+ */
 int main(int argc, char **argv)
 {
 	int listenfd, connectfd, port, i, maxi, maxfd, sockfd;
 	socklen_t client_len;
 	struct sockaddr_in serv, cli;
-	//pid_t pid;
-	
 
 	// select version
 	int nready, client[FD_SETSIZE];
@@ -31,8 +114,7 @@ int main(int argc, char **argv)
 
 	listenfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (listenfd == -1) {
-		printf("Failed to init socket\n");
-		return FALSE;
+		msg_error("Failed to init socket\n");
 	}
 
 	memset(&serv, 0, sizeof(serv));
@@ -40,13 +122,7 @@ int main(int argc, char **argv)
 	serv.sin_addr.s_addr = htonl(INADDR_ANY);
 	serv.sin_port = htons(port);
 	if (bind(listenfd, (struct sockaddr *) &serv, sizeof(serv)) == -1) {
-		printf("Unable to bind *:%d\n", port);
-		return FALSE;
-	}
-
-	if (listen(listenfd, SOMAXCONN) == -1) {
-		printf("Socket execute error\n");
-		return FALSE;
+		msg_error("Bind error.\n");
 	}
 
 	// select version
@@ -105,28 +181,18 @@ int main(int argc, char **argv)
 			client[i] = -1;
 		}
 
-		/*
-		 * I/O blocking version
-		 */
-		/*
 		while ((bytes_read = read(connectfd, buf, MAXLINE)) > 0) {
 			printf("Message recieved: %s\n", buf);
 			write(connectfd, buf, bytes_read);	
 		}
 
-		*/
 
-		/* 
-		 * fork version
-		 */
-		/*
 		if ((pid = fork()) == 0) {
 			close(listenfd);
 			request_handler(connectfd);
 			close(connectfd);
 			exit(0);
 		}
-		*/
 
 		close(connectfd);
 	}
@@ -138,9 +204,9 @@ int main(int argc, char **argv)
 void request_handler(int fd)
 {
 	int bytes_read;
-	char buf[MAXLINE];
+	char buf[BUFSIZE];
 
-	while ((bytes_read = read(fd, buf, MAXLINE)) > 0) {
+	while ((bytes_read = read(fd, buf, BUFSIZE)) > 0) {
 		printf("Client Message: %s\n", buf);
 		write(fd, buf, bytes_read);	
 	}

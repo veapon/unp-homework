@@ -1,21 +1,6 @@
 # Object files
 *.o
 Makefile
-Makefile.in
-aclocal.m4
-autom4te.cache/
-config.log
-config.status
-configure
-depcomp
-install-sh
-libtool
-ltmain.sh
-m4/
-missing
-stamp-h?
-.deps/
-.dirstamp
-.libs/
-*.l[ao]
-*~
+cmake_install.cmake
+CMakeCache.txt
+CMakeFiles
